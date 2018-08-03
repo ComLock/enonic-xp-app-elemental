@@ -2,7 +2,7 @@ import R from 'render-js/src/class.es';
 import merge from 'deepmerge';
 
 
-//import {toStr} from '/lib/enonic/util';
+import {toStr} from '/lib/enonic/util';
 import {forceArray} from '/lib/enonic/util/data';
 import {get as getContentByKey} from '/lib/xp/content';
 import {
@@ -11,19 +11,38 @@ import {
 } from '/lib/xp/portal';
 
 
-function nameValueArrayToObject(arr) {
-    const o = {};
-    arr.forEach((property) => {
-        o[property.name] = property.value;
+function nameValueItemSetToObject(itemset, o = {}) {
+    if (!itemset) { return {}; }
+    forceArray(itemset).forEach((item) => {
+        o[item.name] = item.value; // eslint-disable-line no-param-reassign
     });
     return o;
 }
 
 
-function breakpointsArrayToObject(arr) {
+function styleOptionSetToObject(optionset) {
+    if (!optionset) { return {}; }
+    let o = {};
+    forceArray(optionset).forEach((occurrence) => {
+        const propertyObj = nameValueItemSetToObject(occurrence[occurrence._selected].properties);
+        o = merge(
+            o,
+            occurrence._selected === 'nested'
+                ? {
+                    [`&${occurrence[occurrence._selected].selector}`]: propertyObj
+                }
+                : propertyObj
+        );
+    });
+    return o;
+}
+
+
+function breakpointsItemSetToObject(itemset) {
+    if (!itemset) { return {}; }
     const o = {};
-    arr.forEach((breakpoint) => {
-        o[`minWidth${breakpoint.minWidth}`] = nameValueArrayToObject(breakpoint.style ? forceArray(breakpoint.style) : []);
+    forceArray(itemset).forEach((breakpoint) => {
+        o[`minWidth${breakpoint.minWidth}`] = styleOptionSetToObject(breakpoint.style);
     });
     return o;
 }
@@ -34,19 +53,19 @@ export function get() {
     const elementContent = config.elementId
         ? getContentByKey({key: config.elementId})
         : getCurrentContent(); //log.info(toStr({elementContent}));
-    const {data} = elementContent; //log.info(toStr({data}));
+    const {data} = elementContent; log.info(toStr({data}));
     const tag = config.tag || data.tag || 'div';
 
-    const dataAttributes = nameValueArrayToObject(data.attributes ? forceArray(data.attributes) : []); //log.info(toStr({dataAttributes}));
-    const configAttributes = nameValueArrayToObject(config.attributes ? forceArray(config.attributes) : []); //log.info(toStr({configAttributes}));
+    const dataAttributes = nameValueItemSetToObject(data.attributes ? forceArray(data.attributes) : []); //log.info(toStr({dataAttributes}));
+    const configAttributes = nameValueItemSetToObject(config.attributes ? forceArray(config.attributes) : []); //log.info(toStr({configAttributes}));
     const attributes = merge(dataAttributes, configAttributes); //log.info(toStr({attributes}));
 
-    const dataStyle = nameValueArrayToObject(data.style ? forceArray(data.style) : []); //log.info(toStr({dataStyle}));
-    const configStyle = nameValueArrayToObject(config.style ? forceArray(config.style) : []); //log.info(toStr({configStyle}));
+    const dataStyle = styleOptionSetToObject(data.style); //log.info(toStr({dataStyle}));
+    const configStyle = styleOptionSetToObject(config.style); //log.info(toStr({configStyle}));
     const style = merge(dataStyle, configStyle); //log.info(toStr({style}));
 
-    const dataBreakPoints = breakpointsArrayToObject(data.breakpoints ? forceArray(data.breakpoints) : []); //log.info(toStr({dataBreakPoints}));
-    const configBreakPoints = breakpointsArrayToObject(config.breakpoints ? forceArray(config.breakpoints) : []); //log.info(toStr({configBreakPoints}));
+    const dataBreakPoints = breakpointsItemSetToObject(data.breakpoints); //log.info(toStr({dataBreakPoints}));
+    const configBreakPoints = breakpointsItemSetToObject(config.breakpoints); //log.info(toStr({configBreakPoints}));
     const breakpoints = merge(dataBreakPoints, configBreakPoints); //log.info(toStr({breakpoints}));
 
     attributes._s = style;

@@ -1,0 +1,13 @@
+<mixin>
+    <display-name>Properties</display-name>
+    <items>
+        <item-set name="properties">
+            <label>Property</label>
+            <occurrences minimum="1" maximum="0"/>
+            <items>
+                <inline mixin="name"/>
+                <inline mixin="value"/>
+            </items>
+        </item-set>
+    </items>
+</mixin>

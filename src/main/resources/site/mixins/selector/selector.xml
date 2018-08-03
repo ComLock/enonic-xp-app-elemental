@@ -1,0 +1,11 @@
+<mixin>
+    <display-name>Selector</display-name>
+    <items>
+        <input name="selector" type="TextLine">
+            <label>Selector</label>
+            <help-text>:hover</help-text>
+            <occurrences minimum="0" maximum="1"/>
+            <config/>
+        </input>
+    </items>
+</mixin>
