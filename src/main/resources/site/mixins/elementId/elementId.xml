@@ -1,0 +1,16 @@
+<mixin>
+    <display-name>Element id</display-name>
+    <items>
+        <input name="elementId" type="ContentSelector">
+          <label>Element</label>
+          <occurrences minimum="0" maximum="0"/>
+          <config>
+            <relationshipType>system:reference</relationshipType>
+            <allowContentType>element</allowContentType>
+            <treeMode>false</treeMode>
+            <showStatus>true</showStatus>
+            <hideToggleIcon>false</hideToggleIcon>
+          </config>
+        </input>
+    </items>
+</mixin>

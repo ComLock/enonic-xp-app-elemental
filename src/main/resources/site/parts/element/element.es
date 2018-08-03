@@ -1,4 +1,5 @@
 import R from 'render-js/src/class.es';
+//camelize
 import merge from 'deepmerge';
 
 
@@ -48,6 +49,18 @@ function breakpointsItemSetToObject(itemset) {
 }
 
 
+function styleObjectFromData(data) {
+    if (!data.elementId) {
+        return styleOptionSetToObject(data.style);
+    }
+    return merge(
+        ...forceArray(data.elementId)
+            .map(key => styleObjectFromData(getContentByKey({key}).data)), // NOTE recursive
+        styleOptionSetToObject(data.style)
+    );
+}
+
+
 export function get() {
     const {config} = getComponent(); //log.info(toStr({config}));
     const elementContent = config.elementId
@@ -60,7 +73,8 @@ export function get() {
     const configAttributes = nameValueItemSetToObject(config.attributes ? forceArray(config.attributes) : []); //log.info(toStr({configAttributes}));
     const attributes = merge(dataAttributes, configAttributes); //log.info(toStr({attributes}));
 
-    const dataStyle = styleOptionSetToObject(data.style); //log.info(toStr({dataStyle}));
+    //const dataStyle = styleOptionSetToObject(data.style); //log.info(toStr({dataStyle}));
+    const dataStyle = styleObjectFromData(data); log.info(toStr({dataStyle}));
     const configStyle = styleOptionSetToObject(config.style); //log.info(toStr({configStyle}));
     const style = merge(dataStyle, configStyle); //log.info(toStr({style}));
 
