@@ -1,0 +1,17 @@
+<mixin>
+    <display-name>Breakpoints</display-name>
+    <items>
+        <item-set name="breakpoints">
+            <label>Breakpoint</label>
+            <occurrences minimum="0" maximum="0"/>
+            <items>
+                <input name="minWidth" type="Long">
+                    <label>minWidth</label>
+                    <occurrences minimum="1" maximum="1"/>
+                    <config/>
+                </input>
+                <inline mixin="style"/>
+            </items>
+        </item-set><!-- breakpoints -->
+    </items>
+</mixin>

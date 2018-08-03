@@ -1,0 +1,14 @@
+<mixin>
+    <display-name>Element</display-name>
+    <items>
+        <input name="tag" type="TextLine">
+            <label>Tag</label>
+            <occurrences minimum="1" maximum="1"/>
+            <config/>
+        </input>
+        <inline mixin="content"/>
+        <inline mixin="attributes"/>
+        <inline mixin="style"/>
+        <inline mixin="breakpoints"/>
+    </items>
+</mixin>

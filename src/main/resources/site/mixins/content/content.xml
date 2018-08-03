@@ -1,0 +1,10 @@
+<mixin>
+    <display-name>Content</display-name>
+    <items>
+        <input name="content" type="TextLine">
+            <label>Content</label>
+            <occurrences minimum="0" maximum="1"/>
+            <config/>
+        </input>
+    </items>
+</mixin>

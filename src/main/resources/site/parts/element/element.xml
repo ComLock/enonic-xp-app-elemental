@@ -1,0 +1,32 @@
+<part>
+    <display-name>Element</display-name>
+    <config>
+
+        <input name="elementId" type="ContentSelector">
+          <label>Element</label>
+          <occurrences minimum="0" maximum="0"/>
+          <config>
+            <relationshipType>system:reference</relationshipType>
+            <allowContentType>element</allowContentType>
+            <treeMode>false</treeMode>
+            <showStatus>true</showStatus>
+            <hideToggleIcon>false</hideToggleIcon>
+          </config>
+        </input>
+
+        <field-set name="override">
+          <label>Override/extend</label>
+          <items>
+              <input name="tag" type="TextLine">
+                  <label>Tag</label>
+                  <occurrences minimum="0" maximum="1"/>
+                  <config/>
+              </input>
+              <inline mixin="content"/>
+              <inline mixin="attributes"/>
+              <inline mixin="style"/>
+              <inline mixin="breakpoints"/>
+          </items>
+      </field-set>
+    </config>
+</part>

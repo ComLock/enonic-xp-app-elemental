@@ -43,7 +43,7 @@ module.exports = {
             'import/no-extraneous-dependencies': ['off'],
             'import/no-unresolved': ['off'],
             indent: ['error', 4],
-            'max-len': ['error', 100, 2, {
+            'max-len': ['error', 160, 2, {
                 ignoreUrls: true,
                 ignoreComments: true,
                 ignoreRegExpLiterals: true,
@@ -55,7 +55,9 @@ module.exports = {
             'no-underscore-dangle': ['error', {
                 allow: [
                     '_id', // content-type property
+                    '_m', // render-js property
                     '_path', // content-type property
+                    '_s', // render-js property
                     '_selected' // option-set property
                 ],
                 allowAfterThis: false,
