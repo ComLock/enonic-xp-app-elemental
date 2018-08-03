@@ -3,7 +3,7 @@ import {camelize} from 'render-js/src/util/camelize.es';
 import merge from 'deepmerge';
 
 
-//import {toStr} from '/lib/enonic/util';
+import {toStr} from '/lib/enonic/util';
 import {forceArray} from '/lib/enonic/util/data';
 import {get as getContentByKey} from '/lib/xp/content';
 import {
@@ -55,18 +55,30 @@ function getParents(ids, seenIds = []) {
     return contents;
 }
 
+function contentFromOptionSet(optionset) {
+    log.info(toStr({optionset}));
+    const content = [];
+    forceArray(optionset).forEach((occurrence) => {
+        if (occurrence._selected === 'text') {
+            content.push(occurrence[occurrence._selected].text);
+        }
+    });
+    return content;
+}
+
 
 function buildChildren(config, parents) {
-    if (config.content) { return config.content; }
+    if (config.content) { return contentFromOptionSet(config.content); }
     for (let i = parents.length - 1; i > 0; i -= 1) {
         const parent = parents[i];
-        if (parent.data && parent.data.content) { return parent.data.content; }
+        if (parent.data && parent.data.content) { return contentFromOptionSet(parent.data.content); }
     }
     return '';
 }
 
 
 function getTag(config, parents) {
+    log.info(toStr({getTag: {config}}));
     if (config.tag) { return config.tag; }
     for (let i = 0; i < parents.length; i += 1) {
         const parent = parents[i];

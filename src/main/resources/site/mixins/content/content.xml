@@ -1,10 +1,32 @@
 <mixin>
     <display-name>Content</display-name>
     <items>
-        <input name="content" type="TextLine">
-            <label>Content</label>
-            <occurrences minimum="0" maximum="1"/>
-            <config/>
-        </input>
+        <option-set name="content">
+          <label>Content</label>
+          <expanded>false</expanded>
+          <occurrences minimum="0" maximum="0"/>
+          <options minimum="1" maximum="1">
+
+            <option name="text">
+              <label>Text</label>
+              <default>true</default>
+              <items>
+                  <input name="text" type="TextLine">
+                      <label>Text</label>
+                      <occurrences minimum="0" maximum="1"/>
+                      <config/>
+                  </input>
+              </items>
+            </option>
+
+            <option name="element">
+              <label>Element</label>
+              <items>
+                  <inline mixin="elementId"/>
+              </items>
+            </option>
+          </options>
+
+      </option-set>
     </items>
 </mixin>
