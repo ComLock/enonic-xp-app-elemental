@@ -68,9 +68,10 @@ function buildChildren(config, parents) {
 
 function getTag(config, parents) {
     if (config.tag) { return config.tag; }
-    parents.forEach((parent) => { // eslint-disable-line consistent-return
+    for (let i = 0; i < parents.length; i += 1) {
+        const parent = parents[i];
         if (parent.data && parent.data.tag) { return parent.data.tag; }
-    });
+    }
     return 'div';
 }
 
