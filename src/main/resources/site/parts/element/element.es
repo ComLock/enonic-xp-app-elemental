@@ -41,6 +41,7 @@ function styleOptionSetToObject(optionset) {
 
 
 function getParents(ids, seenIds = []) {
+    //log.info(toStr({getParents: {ids, seenIds}}));
     if (!ids) { return []; }
     let contents = [];
     forceArray(ids).forEach((key) => {
@@ -52,6 +53,7 @@ function getParents(ids, seenIds = []) {
         }
         contents.push(content);
     });
+    //log.info(toStr({getParents: {contents}}));
     return contents;
 }
 
@@ -69,7 +71,7 @@ function contentFromOptionSet(optionset) {
 
 function buildChildren(config, parents) {
     if (config.content) { return contentFromOptionSet(config.content); }
-    for (let i = parents.length - 1; i > 0; i -= 1) {
+    for (let i = parents.length - 1; i >= 0; i -= 1) {
         const parent = parents[i];
         if (parent.data && parent.data.content) { return contentFromOptionSet(parent.data.content); }
     }
@@ -78,10 +80,11 @@ function buildChildren(config, parents) {
 
 
 function getTag(config, parents) {
-    log.info(toStr({getTag: {config}}));
+    //log.info(toStr({getTag: {config, parents}}));
     if (config.tag) { return config.tag; }
-    for (let i = 0; i < parents.length; i += 1) {
+    for (let i = parents.length - 1; i >= 0; i -= 1) {
         const parent = parents[i];
+        //log.info(toStr({getTag: {parentData: parent.data}}));
         if (parent.data && parent.data.tag) { return parent.data.tag; }
     }
     return 'div';
