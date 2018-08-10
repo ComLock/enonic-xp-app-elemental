@@ -3,7 +3,7 @@ import {camelize} from 'render-js/src/util/camelize.es';
 import merge from 'deepmerge';
 
 
-import {toStr} from '/lib/enonic/util';
+//import {toStr} from '/lib/enonic/util';
 import {forceArray} from '/lib/enonic/util/data';
 import {get as getContentByKey} from '/lib/xp/content';
 import {
@@ -40,42 +40,21 @@ function styleOptionSetToObject(optionset) {
 }
 
 
-function getParents(ids, seenIds = []) {
-    //log.info(toStr({getParents: {ids, seenIds}}));
+function getParents(ids, seenParentIds = []) {
+    //log.info(toStr({getParents: {ids, seenParentIds}}));
     if (!ids) { return []; }
     let contents = [];
     forceArray(ids).forEach((key) => {
-        if (seenIds.includes(key)) { throw new Error(`Content id:${key} already seen! Circular inheritance!`); }
-        seenIds.push(key);
+        if (seenParentIds.includes(key)) { throw new Error(`Content id:${key} already seen! Circular inheritance!`); }
+        seenParentIds.push(key);
         const content = getContentByKey({key});
         if (content.data.elementId) {
-            contents = contents.concat(getParents(content.data.elementId, seenIds)); // NOTE recursive
+            contents = contents.concat(getParents(content.data.elementId, seenParentIds)); // NOTE recursive
         }
         contents.push(content);
     });
     //log.info(toStr({getParents: {contents}}));
     return contents;
-}
-
-function contentFromOptionSet(optionset) {
-    log.info(toStr({optionset}));
-    const content = [];
-    forceArray(optionset).forEach((occurrence) => {
-        if (occurrence._selected === 'text') {
-            content.push(occurrence[occurrence._selected].text);
-        }
-    });
-    return content;
-}
-
-
-function buildChildren(config, parents) {
-    if (config.content) { return contentFromOptionSet(config.content); }
-    for (let i = parents.length - 1; i >= 0; i -= 1) {
-        const parent = parents[i];
-        if (parent.data && parent.data.content) { return contentFromOptionSet(parent.data.content); }
-    }
-    return '';
 }
 
 
@@ -130,17 +109,55 @@ function buildBreakpointsObject(parents, config) {
 }
 
 
-export function get() {
-    const {config} = getComponent(); //log.info(toStr({config}));
-    const currentContent = getCurrentContent(); //log.info(toStr({currentContent}));
-    const parents = getParents(currentContent.type === `${app.name}:element` ? currentContent._id : config.elementId); //log.info(toStr({parents}));
+function contentFromOptionSet(optionset, seenChildIds) {
+    //log.info(toStr({optionset}));
+    const children = [];
+    forceArray(optionset).forEach((occurrence) => {
+        if (occurrence._selected === 'text') {
+            children.push(occurrence[occurrence._selected].text);
+        } else {
+            //log.info(toStr({selectedOccurrence: occurrence[occurrence._selected]}));
+            //log.info(toStr({seenChildIds}));
+            const key = occurrence[occurrence._selected].elementId;
+            if (seenChildIds.includes(key)) { throw new Error(`Content id:${key} already seen! Circular inheritance!`); }
+            seenChildIds.push(key);
+            const content = getContentByKey({key});
+            if (content) {
+                children.push(buildDom({}, content, seenChildIds)); // eslint-disable-line no-use-before-define
+            }
+        }
+    });
+    return children;
+}
+
+
+function buildChildren(config, parents, seenChildIds) {
+    if (config.content) { return contentFromOptionSet(config.content, seenChildIds); }
+    for (let i = parents.length - 1; i >= 0; i -= 1) {
+        const parent = parents[i];
+        if (parent.data && parent.data.content) {
+            return contentFromOptionSet(parent.data.content, seenChildIds);
+        }
+    }
+    return '';
+}
+
+
+function buildDom(config, content, seenChildIds = []) {
+    const parents = getParents(content.type === `${app.name}:element` ? content._id : config.elementId); //log.info(toStr({parents}));
     const tag = getTag(config, parents); //log.info(toStr({tag}));
     const attributes = buildAttributesObject(parents, config); //log.info(toStr({attributes}));
     attributes._s = buildStyleObject(parents, config);
     attributes._m = buildBreakpointsObject(parents, config);
-    //log.info(toStr({attributes}));
-    const content = buildChildren(config, parents); //log.info(toStr({content}));
-    const dom = R[tag](attributes, content);
+    const children = buildChildren(config, parents, seenChildIds); //log.info(toStr({content}));
+    return R[tag](attributes, children);
+}
+
+
+export function get() {
+    const {config} = getComponent(); //log.info(toStr({config}));
+    const currentContent = getCurrentContent(); //log.info(toStr({currentContent}));
+    const dom = buildDom(config, currentContent);
     const r = R.render(dom);
     return {
         body: r.html,
