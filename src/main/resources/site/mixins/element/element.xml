@@ -10,10 +10,10 @@
                     <occurrences minimum="0" maximum="1"/>
                     <config/>
                 </input>
-                <inline mixin="content"/>
                 <inline mixin="attributes"/>
                 <inline mixin="style"/>
                 <inline mixin="breakpoints"/>
+                <inline mixin="children"/>
             </items>
         </field-set>
     </items>

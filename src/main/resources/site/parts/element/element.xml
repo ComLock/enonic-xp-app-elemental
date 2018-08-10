@@ -5,7 +5,6 @@
         <field-set name="override">
           <label>Override/extend</label>
           <items>
-              <inline mixin="content"/>
               <inline mixin="attributes"/>
               <inline mixin="style"/>
               <inline mixin="breakpoints"/>
@@ -14,6 +13,7 @@
                   <occurrences minimum="0" maximum="1"/>
                   <config/>
               </input>
+              <inline mixin="children"/>
           </items>
       </field-set>
     </config>

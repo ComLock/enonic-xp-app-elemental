@@ -43,18 +43,18 @@ function styleOptionSetToObject(optionset) {
 function getParents(ids, seenParentIds = []) {
     //log.info(toStr({getParents: {ids, seenParentIds}}));
     if (!ids) { return []; }
-    let contents = [];
+    let parents = [];
     forceArray(ids).forEach((key) => {
         if (seenParentIds.includes(key)) { throw new Error(`Content id:${key} already seen! Circular inheritance!`); }
         seenParentIds.push(key);
-        const content = getContentByKey({key});
-        if (content.data.elementId) {
-            contents = contents.concat(getParents(content.data.elementId, seenParentIds)); // NOTE recursive
+        const parent = getContentByKey({key});
+        if (parent.data.elementId) {
+            parents = parents.concat(getParents(parent.data.elementId, seenParentIds)); // NOTE recursive
         }
-        contents.push(content);
+        parents.push(parent);
     });
-    //log.info(toStr({getParents: {contents}}));
-    return contents;
+    //log.info(toStr({getParents: {parents}}));
+    return parents;
 }
 
 
@@ -109,7 +109,7 @@ function buildBreakpointsObject(parents, config) {
 }
 
 
-function contentFromOptionSet(optionset, seenChildIds) {
+function childrenFromOptionSet(optionset, seenChildIds) {
     //log.info(toStr({optionset}));
     const children = [];
     forceArray(optionset).forEach((occurrence) => {
@@ -121,9 +121,9 @@ function contentFromOptionSet(optionset, seenChildIds) {
             const key = occurrence[occurrence._selected].elementId;
             if (seenChildIds.includes(key)) { throw new Error(`Content id:${key} already seen! Circular inheritance!`); }
             seenChildIds.push(key);
-            const content = getContentByKey({key});
-            if (content) {
-                children.push(buildDom({}, content, seenChildIds)); // eslint-disable-line no-use-before-define
+            const child = getContentByKey({key});
+            if (child) {
+                children.push(buildDom({}, child, seenChildIds)); // eslint-disable-line no-use-before-define
             }
         }
     });
@@ -132,11 +132,11 @@ function contentFromOptionSet(optionset, seenChildIds) {
 
 
 function buildChildren(config, parents, seenChildIds) {
-    if (config.content) { return contentFromOptionSet(config.content, seenChildIds); }
+    if (config.children) { return childrenFromOptionSet(config.children, seenChildIds); }
     for (let i = parents.length - 1; i >= 0; i -= 1) {
         const parent = parents[i];
-        if (parent.data && parent.data.content) {
-            return contentFromOptionSet(parent.data.content, seenChildIds);
+        if (parent.data && parent.data.children) {
+            return childrenFromOptionSet(parent.data.children, seenChildIds);
         }
     }
     return '';
@@ -149,7 +149,7 @@ function buildDom(config, content, seenChildIds = []) {
     const attributes = buildAttributesObject(parents, config); //log.info(toStr({attributes}));
     attributes._s = buildStyleObject(parents, config);
     attributes._m = buildBreakpointsObject(parents, config);
-    const children = buildChildren(config, parents, seenChildIds); //log.info(toStr({content}));
+    const children = buildChildren(config, parents, seenChildIds); //log.info(toStr({children}));
     return R[tag](attributes, children);
 }
 
